@@ -1,0 +1,116 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+<strong>All Posts</strong>
+<script src="{% static 'network/index.js' %}"></script>
+{% csrf_token %}
+
+<!--  <script>
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    </script> -->
+
+{% if user.is_active %}
+
+<div id="post-view">
+    <br>
+    <h3>New Post</h3>
+    <form id="add_post">
+        {%csrf_token%}
+        <textarea id="post" name="post" class="form-control" placeholder="New Post"></textarea>
+        <input type="submit" class="btn btn-lg btn-outline-primary" style="margin-top:10px ;">
+
+    </form>
+    <br>
+</div>
+
+{% endif %}
+
+<div id="home">
+    {% for posts in page_obj %}
+    <div class="border border-secondary rounded p-3 mt-2">
+        {# Each "Posts" is a Posts model object. #}
+
+        <div id={{ posts.user.id }} onclick="view_profile(this.id)">
+            <h4><a href="{% url 'profile' posts.user.id %}">{{ posts.user }}</a></h4>
+
+            <div id="post-{{posts.id}}">{{ posts.message }}</div>
+
+            
+        {% if user.is_authenticated %}
+        {% if posts.user.id == user.id %}
+        <div id="edit" onclick="edit('{{ posts.id }}')" class="text-primary">Edit</div>
+        {% else %}
+        {% endif %}
+        {% endif %}
+        <textarea class="form-control mb-2" id="edit-box-{{posts.id}}" name="edit-box" style="display:none;"></textarea>
+        <button id="edit-btn-{{posts.id}}" class="btn btn-primary" style="display:none;">Save</button>
+
+            {{ posts.timestamp }}
+        </div>
+
+
+
+        {% for x in posts.likes.all %}
+        {% if x.id == user.id and forloop.last == false %}
+        <div id="{{posts.id}}" onclick=like(this.id); class="btn btn-outline-primary btn-sm"> Unlike</div>
+        {% endif %}
+
+
+
+        {% if forloop.last %}
+        {% if x.id == user.id %}
+        <div id="{{posts.id}}" onclick=like(this.id); class="btn btn-outline-primary btn-sm"> Unlike</div>
+        {% else %}
+        <div id="{{posts.id}}" onclick=like(this.id); class="btn btn-outline-primary btn-sm"> Like</div>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+
+        {% if posts.likes.all %}
+        {% else %}
+        <div id="{{posts.id}}" onclick=like(this.id); class="btn btn-outline-primary btn-sm"> Like</div>
+        {% endif %}
+        <div>
+            Total Likes: <p style="display: inline;" id="totallikes{{posts.id}}" +p>{{ posts.likes.count }}</p>
+        </div>
+
+
+
+
+
+
+    </div>
+    {% empty %}
+    <li>no post</li>
+
+    {{posts.timestamp}}
+
+    {% endfor %}
+
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+
+    </div>
+
+
+
+
+
+
+    {% endblock %}

@@ -1,0 +1,27 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block title %} Edit Post {% endblock %} 
+{% block body %}
+
+{% if user.is_authenticated %}
+    {% if user.id == posts.user.id %}
+        <div class="form-group">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button id="edit_view" class="btn btn-secondary">Edit</button>
+
+        </div>
+    {% else %}
+        You're not authenticated.
+    {% endif %}
+{% else %}
+    You're not authenticated.
+
+    
+{% endif %}
+ 
+{% endblock %}
+
+
